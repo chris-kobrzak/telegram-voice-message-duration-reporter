@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
 import csv
@@ -29,14 +29,10 @@ def generate_reports(data):
     return reports
 
 def extract_voice_messages(messages):
-    return filter(
-        (
-            lambda x: 'media_type' in x
-            and x['media_type'] == 'voice_message'
-            and x['type'] == 'message'
-        ),
-        messages
-    )
+    def is_voice_message(item):
+        return 'media_type' in item and item['media_type'] == 'voice_message' and item['type'] == 'message'
+
+    return [m for m in messages if is_voice_message(m)]
 
 def extract_authors(voice_messages):
     authors = []
@@ -52,7 +48,7 @@ def extract_authors(voice_messages):
 
 def generate_report(author, all_voice_messages):
     report = {
-        'name': author['name'].encode('utf-8'),
+        'name': author['name'],
         'by_day': {}
     }
 
@@ -70,10 +66,10 @@ def generate_report(author, all_voice_messages):
     return report
 
 def extract_author_messages(author_id, voice_messages):
-    return filter(
-        lambda x: x['from_id'] == author_id,
-        voice_messages
-    )
+    def is_author_id(message):
+        return message['from_id'] == author_id
+
+    return [m for m in voice_messages if is_author_id(m)]
 
 def write_csv_reports(reports):
     csv_path = build_csv_file_name()
