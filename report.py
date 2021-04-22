@@ -30,7 +30,11 @@ def generate_reports(data):
 
 def extract_voice_messages(messages):
     def is_voice_message(item):
-        return 'media_type' in item and item['media_type'] == 'voice_message' and item['type'] == 'message'
+        return 'type' in item \
+            and 'duration_seconds' in item \
+            and 'media_type' in item \
+            and item['media_type'] == 'voice_message' \
+            and item['type'] == 'message'
 
     return [m for m in messages if is_voice_message(m)]
 
