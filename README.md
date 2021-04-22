@@ -19,7 +19,7 @@ total duration of voice messages on a per user per day basis.
     ```
 
 This will generate a CSV file in the same directory with following name pattern:
-`report.<datetime>.csv`.
+`report.<timestamp>.csv`.
 
 Sample report:
 

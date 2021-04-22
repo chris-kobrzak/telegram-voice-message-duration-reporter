@@ -93,8 +93,9 @@ def write_csv_reports(reports):
     return csv_path
 
 def build_csv_file_name():
-    current_time = datetime.datetime.utcnow().isoformat()
-    return 'report.' + current_time + '.csv'
+    current_time = datetime.datetime.now()
+    timestamp = current_time.strftime('%Y%m%d%H%M%S')
+    return 'report.' + timestamp + '.csv'
 
 def get_interval_from_seconds(seconds):
     return datetime.timedelta(seconds=seconds)
