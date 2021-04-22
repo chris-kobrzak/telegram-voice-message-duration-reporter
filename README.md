@@ -4,6 +4,12 @@ Reads [Telegram](https://telegram.org) conversations [exported to
 JSON](https://telegram.org/blog/export-and-more) and builds a CSV file with a report on
 total duration of voice messages on a per user per day basis.
 
+## Why?
+
+This is a real-world project. The requirement is to be able to produce visual graph
+reports of students' engagement measured by the length of voice messages they exchange
+with their tutors over the Telegram app.
+
 ## Prerequisites
 - Python 3
 - Telegram Desktop
@@ -17,10 +23,9 @@ total duration of voice messages on a per user per day basis.
     ```bash
     ./report.py
     ```
-
-This will generate a CSV file in the same directory with following name pattern:
+4.  This will generate a CSV file in the same directory with the following name pattern:
 `report.<timestamp>.csv`.
 
-Sample report:
+### Sample report
 
-<img src="./sample-report.png" width="270" alt="Sample report screengrab" />
+<img src="./sample-report.png" width="350" alt="Sample report screengrab" />

@@ -6,29 +6,18 @@ import datetime
 
 def main():
     data = read_json_file('result.json')
-    reports = generate_reports(data)
-    output_file_path = write_csv_reports(reports)
+    voice_messages = extract_voice_messages(data)
+    graph = generate_graph_report(voice_messages)
+    author_map = extract_author_map(voice_messages)
+    table = transform_to_table_report(graph, author_map)
+    output_file_path = write_csv_report(table)
     print_confirmation(output_file_path)
 
 def read_json_file(path):
     with open(path) as json_file:
         return json.load(json_file)
 
-def generate_reports(data):
-    all_messages = data['messages']
-    all_voice_messages = extract_voice_messages(all_messages)
-    unique_author_ids, authors = extract_authors(all_voice_messages)
-
-    reports = []
-    for author_id in unique_author_ids:
-        author = next(author for author in authors if author['id'] == author_id)
-        report = generate_report(author, all_voice_messages)
-        
-        reports.append(report)
-    
-    return reports
-
-def extract_voice_messages(messages):
+def extract_voice_messages(data):
     def is_voice_message(item):
         return 'type' in item \
             and 'duration_seconds' in item \
@@ -36,60 +25,76 @@ def extract_voice_messages(messages):
             and item['media_type'] == 'voice_message' \
             and item['type'] == 'message'
 
-    return [m for m in messages if is_voice_message(m)]
+    return [m for m in data['messages'] if is_voice_message(m)]
 
-def extract_authors(voice_messages):
-    authors = []
+def extract_author_map(voice_messages):
+    author_map = {}
     unique_author_ids = set()
     for voice_message in voice_messages:
-        if not voice_message['from_id'] in unique_author_ids:
-            unique_author_ids.add(voice_message['from_id'])
-            authors.append({
-                'id': voice_message['from_id'],
-                'name': voice_message['from']
-            })
-    return unique_author_ids, authors
+        author_id = voice_message['from_id']
+        author = voice_message['from']
 
-def generate_report(author, all_voice_messages):
-    report = {
-        'name': author['name'],
-        'by_day': {}
-    }
+        if author_id in unique_author_ids:
+            continue
 
-    messages = extract_author_messages(author['id'], all_voice_messages)
-    unique_dates = set()
+        unique_author_ids.add(author_id)
+        author_map[author_id] = author
 
-    for message in messages:
+    return author_map
+
+"""
+{ [<author>]: { <date>: <duration> } }
+"""
+def generate_graph_report(voice_messages):
+    report = {}
+
+    for message in voice_messages:
+        author_id = message['from_id']
         date = message['date'][0:10]
-        if not date in unique_dates:
-            unique_dates.add(date)
-            report['by_day'][date] = 0
+
+        if not author_id in report:
+            report[author_id] = {}
+        if not date in report[author_id]:
+            report[author_id][date] = 0
         
-        report['by_day'][date] += message['duration_seconds']
+        report[author_id][date] += message['duration_seconds']
 
     return report
 
-def extract_author_messages(author_id, voice_messages):
-    def is_author_id(message):
-        return message['from_id'] == author_id
+"""
+['Date', author_a, author_b...],
+[<date>, total_duration, total_duration...],
+"""
+def transform_to_table_report(report, author_map):
+    author_ids = list(report.keys())
+    all_dates = set()
 
-    return [m for m in voice_messages if is_author_id(m)]
+    for author_id in author_ids:
+        author_dates = list(report[author_id].keys())
+        [all_dates.add(author_date) for author_date in author_dates]
 
-def write_csv_reports(reports):
+    rows = []
+    headers = ['Date']
+    [headers.append(author_map[author_id]) for author_id in author_ids]
+    
+    for date in sorted(all_dates):
+        cells = [date]
+        for author_id in author_ids:
+            duration = None
+            if date in report[author_id]:
+                duration = get_interval_from_seconds(report[author_id][date])
+            cells.append(duration)
+        rows.append(cells)
+    return { 'headers': headers, 'rows': rows }
+
+def write_csv_report(table):
     csv_path = build_csv_file_name()
     with open(csv_path, mode='w', newline='') as csv_file:
         writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-        writer.writerow(['Report'])
+        writer.writerow(table['headers'])
+        [writer.writerow(row) for row in table['rows']]
 
-        for report in reports:
-            writer.writerow([report['name']])
-
-            writer.writerow(['Date', 'Interval'])
-            for date, duration in sorted(report['by_day'].items()):
-                writer.writerow([date, get_interval_from_seconds(duration)])
-
-            writer.writerow([''])
     return csv_path
 
 def build_csv_file_name():
