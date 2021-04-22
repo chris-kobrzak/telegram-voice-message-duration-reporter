@@ -77,7 +77,7 @@ def extract_author_messages(author_id, voice_messages):
 
 def write_csv_reports(reports):
     csv_path = build_csv_file_name()
-    with open(csv_path, mode='w') as csv_file:
+    with open(csv_path, mode='w', newline='') as csv_file:
         writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
         writer.writerow(['Report'])
