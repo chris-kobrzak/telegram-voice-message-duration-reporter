@@ -23,4 +23,4 @@ This will generate a CSV file in the same directory with following name pattern:
 
 Sample report:
 
-<img src="./sample-report.png" width="300" alt="Sample report screengrab" />
+<img src="./sample-report.png" width="270" alt="Sample report screengrab" />

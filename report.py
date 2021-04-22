@@ -85,9 +85,9 @@ def write_csv_reports(reports):
         for report in reports:
             writer.writerow([report['name']])
 
-            writer.writerow(['Date', 'Interval', 'Duration (seconds)'])
+            writer.writerow(['Date', 'Interval'])
             for date, duration in sorted(report['by_day'].items()):
-                writer.writerow([date, get_interval_from_seconds(duration), duration])
+                writer.writerow([date, get_interval_from_seconds(duration)])
 
             writer.writerow([''])
     return csv_path
