@@ -1,5 +1,6 @@
+import io
 import os
-from flask import Flask, render_template, request, send_from_directory
+from flask import Flask, render_template, request, send_file
 from werkzeug.utils import secure_filename
 
 from packages.reporter import generate_report
@@ -15,14 +16,45 @@ def render_form():
 
 @app.route('/generate_report', methods = ['POST'])
 def upload_file():
-   if request.method == 'POST':
-      file = request.files['file']
-      upload_path = os.path.abspath(app.config['UPLOAD_FOLDER'] + secure_filename(file.filename))
-      file.save(upload_path)
+   try:
+      uploaded_file = request.files['file']
+      upload_path = os.path.abspath(app.config['UPLOAD_FOLDER'] + secure_filename(uploaded_file.filename))
+
+      uploaded_file.save(upload_path)
       report_filename = generate_report(upload_path, app.config['UPLOAD_FOLDER'])
       os.remove(upload_path)
 
-      return send_from_directory(os.path.abspath(app.config['UPLOAD_FOLDER']), report_filename, as_attachment=True)
+      report_path = os.path.abspath(app.config['UPLOAD_FOLDER'] + report_filename)
+      file_stream = convert_file_to_stream(report_path)
+
+      return send_file(
+         file_stream,
+         mimetype='text/csv',
+         attachment_filename=report_filename,
+         as_attachment=True
+      )
+   except IsADirectoryError as exception:
+      print('IsADirectoryError: ' + str(exception))
+      return render_template('error.html')
+   except UnicodeDecodeError as exception:
+      print('UnicodeDecodeError: ' + str(exception))
+      os.remove(upload_path)
+      return render_template('error.html')
+   except KeyError as exception:
+      print('KeyError: ' + str(exception))
+      os.remove(upload_path)
+      return render_template('error.html')
+   except Exception as exception:
+      print('Exception: ' + str(exception))
+      return render_template('error.html')
+
+def convert_file_to_stream(file_path):
+   stream = io.BytesIO()
+   with open(file_path, 'rb') as file:
+      stream.write(file.read())
+   stream.seek(0)
+   os.remove(file_path)
+   return stream
 
 if __name__ == '__main__':
    app.run(debug = True)
