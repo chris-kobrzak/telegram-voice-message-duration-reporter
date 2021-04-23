@@ -1,0 +1,10 @@
+.DS_Store
+.dockerignore
+.git
+.gitignore
+.idea
+.vscode
+__pycache__
+Dockerfile
+sample-report.png
+virtual_env

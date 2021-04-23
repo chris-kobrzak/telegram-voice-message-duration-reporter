@@ -11,5 +11,6 @@ mccabe==0.6.1
 pycodestyle==2.7.0
 pylint==2.7.4
 toml==0.10.2
+waitress==2.0.0
 Werkzeug==1.0.1
 wrapt==1.12.1

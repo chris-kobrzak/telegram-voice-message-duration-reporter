@@ -3,7 +3,7 @@ import os
 from flask import Flask, render_template, request, send_file
 from werkzeug.utils import secure_filename
 
-from app.reporter import generate_report
+from reporter import generate_report
 
 app = Flask(__name__)
 
@@ -63,4 +63,5 @@ def convert_file_to_stream(file_path):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=5000)

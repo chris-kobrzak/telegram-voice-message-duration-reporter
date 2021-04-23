@@ -15,6 +15,6 @@ RUN pip3 install -r requirements.txt
 
 COPY . /srv/www/
 
-ENV FLASK_APP=app/main.py
+ENTRYPOINT [ "python3" ]
 
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+CMD [ "app/main.py" ]
