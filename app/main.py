@@ -3,11 +3,11 @@ import os
 from flask import Flask, render_template, request, send_file
 from werkzeug.utils import secure_filename
 
-from packages.reporter import generate_report
+from app.reporter import generate_report
 
 app = Flask(__name__)
 
-app.config['UPLOAD_FOLDER'] = './tmp/'
+app.config['UPLOAD_FOLDER'] = '/var/tmp/'
 app.config['MAX_CONTENT_LENGTH'] = 15 * 1024 * 1024
 
 
@@ -20,16 +20,15 @@ def render_form():
 def upload_file():
     try:
         uploaded_file = request.files['file']
-        upload_path = os.path.abspath(
-            app.config['UPLOAD_FOLDER'] + secure_filename(uploaded_file.filename))
+        upload_path = app.config['UPLOAD_FOLDER'] + \
+            secure_filename(uploaded_file.filename)
 
         uploaded_file.save(upload_path)
         report_filename = generate_report(
             upload_path, app.config['UPLOAD_FOLDER'])
         os.remove(upload_path)
 
-        report_path = os.path.abspath(
-            app.config['UPLOAD_FOLDER'] + report_filename)
+        report_path = app.config['UPLOAD_FOLDER'] + report_filename
         file_stream = convert_file_to_stream(report_path)
 
         return send_file(
