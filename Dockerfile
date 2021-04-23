@@ -1,9 +1,6 @@
-FROM ubuntu:20.04
+FROM python:3-alpine
 
 LABEL maintainer="Chris Kobrzak <chris.kobrzak@gmail.com>"
-
-RUN apt update -y
-RUN apt install -y python3-pip python3-dev
 
 RUN mkdir -p /srv/www
 
