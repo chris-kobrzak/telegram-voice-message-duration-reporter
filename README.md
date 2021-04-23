@@ -16,6 +16,8 @@ with their tutors over the Telegram app.
 
 ## Usage
 
+### As standalone script
+
 1. Export conversations in the JSON format with Telegram Desktop
 2. Put the exported `result.json` file and the [reporter.py](app/reporter.py) script in
 the same directory
@@ -27,6 +29,33 @@ the same directory
 4.  This will generate a CSV file in the same directory with the following name pattern:
 `report.<timestamp>.csv`.
 
-### Sample report
+#### Sample report
 
 <img src="./sample-report.png" width="350" alt="Sample report screengrab" />
+
+### As local server
+
+One time setup:
+
+```bash
+python3 -m venv virtual_env
+. virtual_env/bin/activate
+pip install -r requirements.txt
+```
+
+Run the server:
+
+```bash
+python app/main.py
+```
+
+Open http://localhost:5000 and upload `result.json`.
+
+### As Docker cointainer
+
+```bash
+docker build -t telegram-voice-message-duration-reporter:latest .
+docker run -d -p 5000:5000 telegram-voice-message-duration-reporter:latest
+```
+
+Open http://localhost:5000 and upload `result.json`.
