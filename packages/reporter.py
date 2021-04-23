@@ -4,18 +4,19 @@ import json
 import csv
 import datetime
 
-def main():
-    data = read_json_file('result.json')
+def generate_report(json_file_path = 'result.json', output_dir = ''):
+    data = read_file(json_file_path)
     voice_messages = extract_voice_messages(data)
     graph = generate_graph_report(voice_messages)
     author_map = extract_author_map(voice_messages)
     table = transform_to_table_report(graph, author_map)
-    output_file_path = write_csv_report(table)
-    print_confirmation(output_file_path)
+    report_filename = write_csv_report(table, output_dir)
+    print('Report generated: ' + report_filename)
+    return report_filename
 
-def read_json_file(path):
-    with open(path) as json_file:
-        return json.load(json_file)
+def read_file(path):
+    with open(path) as file:
+        return json.load(file)
 
 def extract_voice_messages(data):
     def is_voice_message(item):
@@ -56,7 +57,7 @@ def generate_graph_report(voice_messages):
             report[author_id] = {}
         if not date in report[author_id]:
             report[author_id][date] = 0
-        
+
         report[author_id][date] += message['duration_seconds']
 
     return report
@@ -76,7 +77,7 @@ def transform_to_table_report(report, author_map):
     rows = []
     headers = ['Date']
     [headers.append(author_map[author_id]) for author_id in author_ids]
-    
+
     for date in sorted(all_dates):
         cells = [date]
         for author_id in author_ids:
@@ -87,15 +88,16 @@ def transform_to_table_report(report, author_map):
         rows.append(cells)
     return { 'headers': headers, 'rows': rows }
 
-def write_csv_report(table):
-    csv_path = build_csv_file_name()
+def write_csv_report(table, output_dir):
+    csv_filename = build_csv_file_name()
+    csv_path = output_dir + csv_filename
     with open(csv_path, mode='w', newline='') as csv_file:
         writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
         writer.writerow(table['headers'])
         [writer.writerow(row) for row in table['rows']]
 
-    return csv_path
+    return csv_filename
 
 def build_csv_file_name():
     current_time = datetime.datetime.now()
@@ -105,8 +107,5 @@ def build_csv_file_name():
 def get_interval_from_seconds(seconds):
     return datetime.timedelta(seconds=seconds)
 
-def print_confirmation(output_file_path):
-    print('Report successfully created!')
-    print('Filename: ' + output_file_path)
-
-main()
+if __name__ == '__main__':
+    generate_report()

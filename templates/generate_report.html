@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
+    <title>Telegram voice messages duration reporter</title>
+    <style>
+      html {
+        padding: 20px;
+        background-color: dimgrey;
+      }
+      body {
+        width: 300px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 2px solid black;
+        border-radius: 12px;
+        font-size: 120%;
+        text-align: center;
+        font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+          "Lucida Sans", Arial, sans-serif;
+        background-color: silver;
+      }
+      h1 {
+        font-size: 140%;
+      }
+      .submit {
+        padding: 20px;
+        font-size: 120%;
+        border-radius: 10px;
+        background-color: darkseagreen;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Telegram voice messages duration report generator</h1>
+    <form action="/generate_report" method="POST" enctype="multipart/form-data">
+      <p>
+        <label>
+          Select Telegram <em>result.json</em> file:
+          <input type="file" name="file" />
+        </label>
+      </p>
+      <p>
+        <button type="submit" class="submit">Generate CSV report</button>
+      </p>
+    </form>
+  </body>
+</html>

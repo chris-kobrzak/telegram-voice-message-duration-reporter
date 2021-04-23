@@ -17,11 +17,12 @@ with their tutors over the Telegram app.
 ## Usage
 
 1. Export conversations in the JSON format with Telegram Desktop
-2. Put the exported `result.json` file and the `report.py` script in the same directory
-3. On Windows simply double click `report.py`. On Unix systems open a terminal and run
+2. Put the exported `result.json` file and the [reporter.py](app/reporter.py) script in
+the same directory
+3. On Windows simply double click `reporter.py`. On Unix systems open a terminal and run
 
     ```bash
-    ./report.py
+    ./reporter.py
     ```
 4.  This will generate a CSV file in the same directory with the following name pattern:
 `report.<timestamp>.csv`.
