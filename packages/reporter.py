@@ -4,7 +4,8 @@ import json
 import csv
 import datetime
 
-def generate_report(json_file_path = 'result.json', output_dir = ''):
+
+def generate_report(json_file_path='result.json', output_dir=''):
     data = read_file(json_file_path)
     voice_messages = extract_voice_messages(data)
     graph = generate_graph_report(voice_messages)
@@ -14,19 +15,22 @@ def generate_report(json_file_path = 'result.json', output_dir = ''):
     print('Report generated: ' + report_filename)
     return report_filename
 
+
 def read_file(path):
     with open(path) as file:
         return json.load(file)
 
+
 def extract_voice_messages(data):
     def is_voice_message(item):
         return 'type' in item \
-            and 'duration_seconds' in item \
-            and 'media_type' in item \
-            and item['media_type'] == 'voice_message' \
-            and item['type'] == 'message'
+               and 'duration_seconds' in item \
+               and 'media_type' in item \
+               and item['media_type'] == 'voice_message' \
+               and item['type'] == 'message'
 
     return [m for m in data['messages'] if is_voice_message(m)]
+
 
 def extract_author_map(voice_messages):
     author_map = {}
@@ -43,9 +47,7 @@ def extract_author_map(voice_messages):
 
     return author_map
 
-"""
-{ [<author>]: { <date>: <duration> } }
-"""
+
 def generate_graph_report(voice_messages):
     report = {}
 
@@ -53,19 +55,16 @@ def generate_graph_report(voice_messages):
         author_id = message['from_id']
         date = message['date'][0:10]
 
-        if not author_id in report:
+        if author_id not in report:
             report[author_id] = {}
-        if not date in report[author_id]:
+        if date not in report[author_id]:
             report[author_id][date] = 0
 
         report[author_id][date] += message['duration_seconds']
 
     return report
 
-"""
-['Date', author_a, author_b...],
-[<date>, total_duration, total_duration...],
-"""
+
 def transform_to_table_report(report, author_map):
     author_ids = list(report.keys())
     all_dates = set()
@@ -86,26 +85,31 @@ def transform_to_table_report(report, author_map):
                 duration = get_interval_from_seconds(report[author_id][date])
             cells.append(duration)
         rows.append(cells)
-    return { 'headers': headers, 'rows': rows }
+    return {'headers': headers, 'rows': rows}
+
 
 def write_csv_report(table, output_dir):
     csv_filename = build_csv_file_name()
     csv_path = output_dir + csv_filename
     with open(csv_path, mode='w', newline='') as csv_file:
-        writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        writer = csv.writer(csv_file, delimiter=',',
+                            quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
         writer.writerow(table['headers'])
         [writer.writerow(row) for row in table['rows']]
 
     return csv_filename
 
+
 def build_csv_file_name():
     current_time = datetime.datetime.now()
     timestamp = current_time.strftime('%Y%m%d%H%M%S')
     return 'report.' + timestamp + '.csv'
 
+
 def get_interval_from_seconds(seconds):
     return datetime.timedelta(seconds=seconds)
+
 
 if __name__ == '__main__':
     generate_report()
