@@ -100,7 +100,25 @@ def transform_to_table_report(report, author_map):
             cells.append(duration)
         cells.append(durations_total)
         rows.append(cells)
+
+    summary_cells = ['Total cycle']
+    [summary_cells.append(author_duration[author_id])
+     for author_id in author_ids]
+    summary_cells.append(duration_grand_total)
+    rows.append(summary_cells)
+
+    averages = ['Avg per day']
+    [averages.append(format_average_duration(author_duration[author_id] / dates_total))
+     for author_id in author_ids]
+    averages.append(format_average_duration(
+        duration_grand_total / dates_total))
+    rows.append(averages)
+
     return {'headers': headers, 'rows': rows}
+
+
+def format_average_duration(delta):
+    return str(delta).split(".")[0]
 
 
 def write_csv_report(table, output_dir):
