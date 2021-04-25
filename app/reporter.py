@@ -73,17 +73,32 @@ def transform_to_table_report(report, author_map):
         author_dates = list(report[author_id].keys())
         [all_dates.add(author_date) for author_date in author_dates]
 
+    dates_total = len(all_dates)
+
+    if dates_total == 0:
+        return {'headers': ['Date'], 'rows': ['N/A']}
+
     rows = []
     headers = ['Date']
     [headers.append(author_map[author_id]) for author_id in author_ids]
+    headers.append('Total per day')
 
+    author_duration = {}
+    duration_grand_total = datetime.timedelta()
     for date in sorted(all_dates):
         cells = [date]
+        durations_total = datetime.timedelta()
         for author_id in author_ids:
+            if author_id not in author_duration:
+                author_duration[author_id] = datetime.timedelta()
             duration = None
             if date in report[author_id]:
                 duration = get_interval_from_seconds(report[author_id][date])
+                durations_total += duration
+                author_duration[author_id] += duration
+                duration_grand_total += duration
             cells.append(duration)
+        cells.append(durations_total)
         rows.append(cells)
     return {'headers': headers, 'rows': rows}
 
