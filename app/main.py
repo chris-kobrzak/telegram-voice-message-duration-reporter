@@ -34,7 +34,7 @@ def upload_file():
         return send_file(
             file_stream,
             mimetype='text/csv',
-            attachment_filename=report_filename,
+            download_name=report_filename,
             as_attachment=True
         )
     except IsADirectoryError as exception:
