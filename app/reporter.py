@@ -26,20 +26,21 @@ def find_voice_messages(messages):
         (messages['media_type'] == 'voice_message') &
         (messages['duration_seconds'].notna())
     ]
-    df = df[['date', 'duration_seconds', 'from']]
+    df = df[['date', 'duration_seconds', 'from_id', 'from']]
     df = df.rename(columns={
-        'from': 'Name', 'date': 'Date'
+        'from_id': 'User ID', 'from': 'Name', 'date': 'Date'
     })
+    df['User ID'] = df['User ID'].str.removeprefix('user')
     df['Date'] = df['Date'].str[0:10]
     return df
 
 
 def produce_report_with_stats(voice_messages):
-    grouped = voice_messages.groupby(['Name', 'Date']).sum()
+    grouped = voice_messages.groupby(['User ID', 'Name', 'Date']).sum()
     df = grouped.pivot_table(
         values='duration_seconds',
         index='Date',
-        columns='Name',
+        columns=['Name', 'User ID'],
         fill_value=0
     )
     df.loc[:, "Daily total"] = df.sum(axis=1)
