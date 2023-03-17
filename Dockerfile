@@ -8,6 +8,8 @@ COPY ./requirements.txt /srv/www/requirements.txt
 
 WORKDIR /srv/www
 
+RUN python -m pip install --upgrade pip
+
 RUN pip3 install -r requirements.txt
 
 COPY . /srv/www/
