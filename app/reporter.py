@@ -28,17 +28,23 @@ def find_voice_messages(messages):
     ]
     df = df[['date', 'duration_seconds', 'from_id', 'from']]
     df = df.rename(columns={
-        'from_id': 'User ID', 'from': 'Name', 'date': 'Date'
+        'from_id': 'User ID',
+        'from': 'Name',
+        'date': 'Date',
+        'duration_seconds': 'Duration (s)'
     })
     df['User ID'] = df['User ID'].str.removeprefix('user')
+    df['Datetime'] = df['Date']
     df['Date'] = df['Date'].str[0:10]
     return df
 
 
 def produce_report_with_stats(voice_messages):
-    grouped = voice_messages.groupby(['User ID', 'Name', 'Date']).sum()
+    grouped = voice_messages\
+        .groupby(['User ID', 'Name', 'Date'])\
+        .agg({'Duration (s)': ['sum'], 'Datetime': ['min']})
     df = grouped.pivot_table(
-        values='duration_seconds',
+        values='Duration (s)',
         index='Date',
         columns=['Name', 'User ID'],
         fill_value=0
