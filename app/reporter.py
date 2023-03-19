@@ -40,19 +40,23 @@ def find_voice_messages(messages):
 
 
 def produce_report_with_stats(voice_messages):
-    grouped = voice_messages\
-        .groupby(['User ID', 'Name', 'Date'])\
-        .agg({'Duration (s)': ['sum'], 'Datetime': ['min']})
-    df = grouped.pivot_table(
-        values='Duration (s)',
+    df = pd.pivot_table(
+        voice_messages,
         index='Date',
         columns=['Name', 'User ID'],
-        fill_value=0
+        aggfunc={'Duration (s)': ['sum'], 'Timestamp': ['min']}
     )
+    # FIXME: Conflicts with new timestamp columns
     df.loc[:, "Daily total"] = df.sum(axis=1)
+
+    df['Timestamp'] = df['Timestamp'].apply(unix_time_to_date)
+
     df.loc['Total'] = df.sum()
     df.loc['Average'] = df[:-1].mean()
-    return df.apply(seconds_to_intervals)
+
+    df['Duration (s)'] = df['Duration (s)'].apply(seconds_to_intervals)
+
+    return df
 
 
 def seconds_to_intervals(second_series):
@@ -61,9 +65,19 @@ def seconds_to_intervals(second_series):
             pd.Timedelta(seconds=seconds),
             "{hours}:{minutes:02d}:{seconds:02d}",
         )
-        if pd.notna(seconds) and seconds > 0
+        if pd.notna(seconds) and 0 < seconds < 10000
         else ""
         for seconds in second_series
+    ]
+
+
+def unix_time_to_date(unix_time_series):
+    return [
+        # TODO: Format as time string
+        pd.to_datetime(unix_time, unit='s')
+        if pd.notna(unix_time)
+        else ""
+        for unix_time in unix_time_series
     ]
 
 
