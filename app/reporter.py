@@ -26,15 +26,15 @@ def find_voice_messages(messages):
         (messages['media_type'] == 'voice_message') &
         (messages['duration_seconds'].notna())
     ]
-    df = df[['date', 'duration_seconds', 'from_id', 'from']]
+    df = df[['date', 'date_unixtime', 'duration_seconds', 'from_id', 'from']]
     df = df.rename(columns={
         'from_id': 'User ID',
         'from': 'Name',
         'date': 'Date',
+        'date_unixtime': 'Timestamp',
         'duration_seconds': 'Duration (s)'
     })
-    df['User ID'] = df['User ID'].str.removeprefix('user')
-    df['Datetime'] = df['Date']
+    df['User ID'] = df['User ID'].str.removeprefix('user').astype(int)
     df['Date'] = df['Date'].str[0:10]
     return df
 
