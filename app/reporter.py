@@ -76,7 +76,7 @@ def seconds_to_intervals(second_series):
 def unix_time_to_date(unix_time_series):
     return [
         # TODO: Format as time string
-        pd.to_datetime(unix_time, unit='s')
+        pd.to_datetime(unix_time, unit='s').strftime('%X')
         if pd.notna(unix_time)
         else ""
         for unix_time in unix_time_series
