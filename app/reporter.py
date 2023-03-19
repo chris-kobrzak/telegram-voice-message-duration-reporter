@@ -31,7 +31,7 @@ def find_voice_messages(messages):
         'from_id': 'User ID',
         'from': 'Name',
         'date': 'Date',
-        'date_unixtime': 'Timestamp',
+        'date_unixtime': 'Time',
         'duration_seconds': 'Duration (s)'
     })
 
@@ -47,7 +47,7 @@ def produce_report_with_stats(voice_messages):
         df,
         index='Date',
         columns=['Name', 'User ID'],
-        aggfunc={'Duration (s)': ['sum'], 'Timestamp': ['min']}
+        aggfunc={'Duration (s)': ['sum'], 'Time': ['min', 'max']}
     )
 
     df.loc['Total'] = df.sum(numeric_only=True)
@@ -55,7 +55,7 @@ def produce_report_with_stats(voice_messages):
 
     df.loc[:, "Daily total"] = df['Duration (s)'].sum(axis=1)
 
-    df['Timestamp'] = df['Timestamp'].apply(unix_time_to_date)
+    df['Time'] = df['Time'].apply(unix_time_to_date)
     df = df.apply(seconds_to_intervals)
 
     return df
