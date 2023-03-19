@@ -34,27 +34,29 @@ def find_voice_messages(messages):
         'date_unixtime': 'Timestamp',
         'duration_seconds': 'Duration (s)'
     })
-    df['User ID'] = df['User ID'].str.removeprefix('user').astype(int)
-    df['Date'] = df['Date'].str[0:10]
+
     return df
 
 
 def produce_report_with_stats(voice_messages):
+    df = voice_messages
+    df['User ID'] = df['User ID'].str.removeprefix('user').astype(int)
+    df['Date'] = df['Date'].str[0:10]
+
     df = pd.pivot_table(
-        voice_messages,
+        df,
         index='Date',
         columns=['Name', 'User ID'],
         aggfunc={'Duration (s)': ['sum'], 'Timestamp': ['min']}
     )
-    # FIXME: Conflicts with new timestamp columns
-    df.loc[:, "Daily total"] = df.sum(axis=1)
+
+    df.loc['Total'] = df.sum(numeric_only=True)
+    df.loc['Average'] = df[:-1].mean(numeric_only=True)
+
+    df.loc[:, "Daily total"] = df['Duration (s)'].sum(axis=1)
 
     df['Timestamp'] = df['Timestamp'].apply(unix_time_to_date)
-
-    df.loc['Total'] = df.sum()
-    df.loc['Average'] = df[:-1].mean()
-
-    df['Duration (s)'] = df['Duration (s)'].apply(seconds_to_intervals)
+    df = df.apply(seconds_to_intervals)
 
     return df
 
@@ -62,12 +64,12 @@ def produce_report_with_stats(voice_messages):
 def seconds_to_intervals(second_series):
     return [
         interval_to_string(
-            pd.Timedelta(seconds=seconds),
+            pd.Timedelta(seconds=value),
             "{hours}:{minutes:02d}:{seconds:02d}",
         )
-        if pd.notna(seconds) and 0 < seconds < 10000
-        else ""
-        for seconds in second_series
+        if pd.notna(value) and isinstance(value, (int, float)) and value > 0
+        else value
+        for value in second_series
     ]
 
 
