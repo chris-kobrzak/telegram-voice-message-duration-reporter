@@ -56,8 +56,8 @@ def produce_report_with_stats(voice_messages):
         values=['Duration', 'Earliest_Msg', 'Latest_Msg'],
         fill_value=0)
 
-    df['Earliest_Msg'] = df['Earliest_Msg'].apply(unix_time_to_date)
-    df['Latest_Msg'] = df['Latest_Msg'].apply(unix_time_to_date)
+    df['Earliest_Msg'] = df['Earliest_Msg'].apply(epoch_time_to_time)
+    df['Latest_Msg'] = df['Latest_Msg'].apply(epoch_time_to_time)
 
     df.loc['Total'] = df.sum(numeric_only=True)
     df.loc['Average'] = df[:-1].mean(numeric_only=True)
@@ -83,9 +83,8 @@ def seconds_to_intervals(second_series):
     ]
 
 
-def unix_time_to_date(unix_time_series):
+def epoch_time_to_time(unix_time_series):
     return [
-        # TODO: Format as time string
         pd.to_datetime(unix_time, unit='s').strftime('%X')
         if pd.notna(unix_time)
         else ""
