@@ -31,7 +31,7 @@ def find_voice_messages(messages):
         'from_id': 'User ID',
         'from': 'Name',
         'date': 'Date',
-        'date_unixtime': 'Time',
+        'date_unixtime': 'Epoch Time',
         'duration_seconds': 'Duration (s)'
     })
 
@@ -43,20 +43,30 @@ def produce_report_with_stats(voice_messages):
     df['User ID'] = df['User ID'].str.removeprefix('user').astype(int)
     df['Date'] = df['Date'].str[0:10]
 
-    df = pd.pivot_table(
-        df,
+    df = df.groupby(['User ID', 'Name', 'Date']).agg(
+        Earliest_Msg=('Epoch Time', 'min'),
+        Latest_Msg=('Epoch Time', 'max'),
+        Duration=('Duration (s)', 'sum'))
+    df['Earliest_Msg'] = df['Earliest_Msg'].astype(int)
+    df['Latest_Msg'] = df['Latest_Msg'].astype(int)
+
+    df = df.pivot_table(
         index='Date',
         columns=['Name', 'User ID'],
-        aggfunc={'Duration (s)': ['sum'], 'Time': ['min', 'max']}
-    )
+        values=['Duration', 'Earliest_Msg', 'Latest_Msg'],
+        fill_value=0)
+
+    df['Earliest_Msg'] = df['Earliest_Msg'].apply(unix_time_to_date)
+    df['Latest_Msg'] = df['Latest_Msg'].apply(unix_time_to_date)
 
     df.loc['Total'] = df.sum(numeric_only=True)
     df.loc['Average'] = df[:-1].mean(numeric_only=True)
 
-    df.loc[:, "Daily total"] = df['Duration (s)'].sum(axis=1)
+    df.loc[:, "Daily total"] = df['Duration'].sum(axis=1)
 
-    df['Time'] = df['Time'].apply(unix_time_to_date)
     df = df.apply(seconds_to_intervals)
+
+    df = df[['Duration', 'Daily total', 'Earliest_Msg', 'Latest_Msg']]
 
     return df
 
