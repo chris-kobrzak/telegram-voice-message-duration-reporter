@@ -44,20 +44,20 @@ def produce_report_with_stats(voice_messages):
     df['Date'] = df['Date'].str[0:10]
 
     df = df.groupby(['User ID', 'Name', 'Date']).agg(
-        Earliest_Msg=('Epoch Time', 'min'),
-        Latest_Msg=('Epoch Time', 'max'),
+        First_Msg=('Epoch Time', 'min'),
+        Last_Msg=('Epoch Time', 'max'),
         Duration=('Duration (s)', 'sum'))
-    df['Earliest_Msg'] = df['Earliest_Msg'].astype(int)
-    df['Latest_Msg'] = df['Latest_Msg'].astype(int)
+    df['First_Msg'] = df['First_Msg'].astype(int)
+    df['Last_Msg'] = df['Last_Msg'].astype(int)
 
     df = df.pivot_table(
         index='Date',
         columns=['Name', 'User ID'],
-        values=['Duration', 'Earliest_Msg', 'Latest_Msg'],
+        values=['Duration', 'First_Msg', 'Last_Msg'],
         fill_value=0)
 
-    df['Earliest_Msg'] = df['Earliest_Msg'].apply(epoch_time_to_time)
-    df['Latest_Msg'] = df['Latest_Msg'].apply(epoch_time_to_time)
+    df['First_Msg'] = df['First_Msg'].apply(epoch_time_to_time)
+    df['Last_Msg'] = df['Last_Msg'].apply(epoch_time_to_time)
 
     df.loc['Total'] = df.sum(numeric_only=True)
     df.loc['Average'] = df[:-1].mean(numeric_only=True)
@@ -66,7 +66,7 @@ def produce_report_with_stats(voice_messages):
 
     df = df.apply(seconds_to_intervals)
 
-    df = df[['Duration', 'Daily total', 'Earliest_Msg', 'Latest_Msg']]
+    df = df[['Duration', 'Daily total', 'First_Msg', 'Last_Msg']]
 
     return df
 
