@@ -85,7 +85,7 @@ def seconds_to_intervals(second_series):
 
 def epoch_time_to_time(unix_time_series):
     return [
-        pd.to_datetime(unix_time, unit='s').strftime('%X')
+        pd.to_datetime(unix_time, unit='s').strftime('%H:%M')
         if pd.notna(unix_time)
         else ""
         for unix_time in unix_time_series
