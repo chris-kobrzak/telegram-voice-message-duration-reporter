@@ -31,7 +31,7 @@ the same directory
 
 #### Sample report
 
-<img src="./sample-report.png" width="430" alt="Sample report screengrab" />
+<img src="./sample-report-full.png" width="610" alt="Sample report screengrab" />
 
 ### As local server
 
