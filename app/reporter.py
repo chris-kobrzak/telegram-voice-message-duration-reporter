@@ -24,6 +24,7 @@ def find_voice_messages(messages):
     df = messages[
         (messages['type'] == 'message') &
         (messages['media_type'] == 'voice_message') &
+        (messages['from_id'].str.startswith('user')) &
         (messages['duration_seconds'].notna())
     ]
     df = df[['date', 'date_unixtime', 'duration_seconds', 'from_id', 'from']]
