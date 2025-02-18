@@ -74,3 +74,8 @@ docker-compose up -d
 You can change the port by setting the `APP_PORT` environment variable, e.g. by
 prefixing the `python` and/or `docker-compose` commands above. For `docker`, you can use the `-e` flag, e.g.: `-e APP_PORT=5002`.
 
+## Unit tests
+
+```bash
+pytest
+```
