@@ -9,6 +9,7 @@ app = Flask(__name__)
 
 app.config['UPLOAD_FOLDER'] = '/var/tmp/'
 app.config['MAX_CONTENT_LENGTH'] = 15 * 1024 * 1024
+app.config['APP_PORT'] = int(os.getenv('APP_PORT', 5000))
 
 
 @app.route('/')
@@ -64,4 +65,4 @@ def convert_file_to_stream(file_path):
 
 if __name__ == '__main__':
     from waitress import serve
-    serve(app, host="0.0.0.0", port=5000)
+    serve(app, host="0.0.0.0", port=app.config['APP_PORT'])

@@ -55,7 +55,22 @@ Open http://localhost:5000 and upload `result.json`.
 
 ```bash
 docker build -t telegram-voice-message-duration-reporter:latest .
-docker run -d -p 5000:5000 telegram-voice-message-duration-reporter:latest
+docker run \
+  -d \
+  -p 5000:5000 \
+    telegram-voice-message-duration-reporter:latest
 ```
 
 Open http://localhost:5000 and upload `result.json`.
+
+### With Docker Compose
+
+```bash
+docker-compose up -d
+```
+
+### Customising the port
+
+You can change the port by setting the `APP_PORT` environment variable, e.g. by
+prefixing the `python` and/or `docker-compose` commands above. For `docker`, you can use the `-e` flag, e.g.: `-e APP_PORT=5002`.
+
