@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
-import csv
 import datetime
 import pandas as pd
-
+import time_utils as tu
 
 def generate_report(json_file_path='result.json', output_dir=''):
     messages = extract_messages(json_file_path)
@@ -57,47 +56,19 @@ def produce_report_with_stats(voice_messages):
         values=['Duration', 'First_Msg', 'Last_Msg'],
         fill_value=0)
 
-    df['First_Msg'] = df['First_Msg'].apply(epoch_time_to_time)
-    df['Last_Msg'] = df['Last_Msg'].apply(epoch_time_to_time)
+    df['First_Msg'] = df['First_Msg'].apply(tu.epoch_time_to_time)
+    df['Last_Msg'] = df['Last_Msg'].apply(tu.epoch_time_to_time)
 
     df.loc['Total'] = df.sum(numeric_only=True)
     df.loc['Average'] = df[:-1].mean(numeric_only=True)
 
     df.loc[:, "Daily total"] = df['Duration'].sum(axis=1)
 
-    df = df.apply(seconds_to_intervals)
+    df = df.apply(tu.seconds_to_intervals)
 
     df = df[['Duration', 'Daily total', 'First_Msg', 'Last_Msg']]
 
     return df
-
-
-def seconds_to_intervals(second_series):
-    return [
-        interval_to_string(
-            pd.Timedelta(seconds=value),
-            "{hours}:{minutes:02d}:{seconds:02d}",
-        )
-        if pd.notna(value) and isinstance(value, (int, float)) and value > 0
-        else value
-        for value in second_series
-    ]
-
-
-def epoch_time_to_time(unix_time_series):
-    return [
-        pd.to_datetime(unix_time, unit='s').strftime('%H:%M')
-        if pd.notna(unix_time)
-        else ""
-        for unix_time in unix_time_series
-    ]
-
-
-def interval_to_string(delta, format):
-    time_part = {'days': delta.days}
-    time_part['hours'], rem = divmod(delta.seconds, 3600)
-    time_part['minutes'], time_part['seconds'] = divmod(rem, 60)
-    return format.format(**time_part)
 
 
 def write_csv_report(df, output_dir):
