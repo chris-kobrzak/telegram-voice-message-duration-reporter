@@ -80,10 +80,11 @@ def write_csv_report(df, output_dir):
     return csv_filename
 
 
-def build_csv_file_name():
-    current_time = datetime.datetime.now()
+def build_csv_file_name(current_time=None):
+    if current_time is None:
+        current_time = datetime.datetime.now()
     timestamp = current_time.strftime('%Y%m%d%H%M%S')
-    return 'report.' + timestamp + '.csv'
+    return f"report.{timestamp}.csv"
 
 
 if __name__ == '__main__':
