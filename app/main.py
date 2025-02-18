@@ -7,7 +7,7 @@ from reporter import generate_report
 
 app = Flask(__name__)
 
-app.config['UPLOAD_FOLDER'] = '/var/tmp/'
+app.config['UPLOAD_PATH'] = '/var/tmp/'
 app.config['MAX_CONTENT_LENGTH'] = 15 * 1024 * 1024
 app.config['APP_PORT'] = int(os.getenv('APP_PORT', 5000))
 
@@ -21,15 +21,15 @@ def render_form():
 def upload_file():
     try:
         uploaded_file = request.files['file']
-        upload_path = app.config['UPLOAD_FOLDER'] + \
+        upload_path = app.config['UPLOAD_PATH'] + \
             secure_filename(uploaded_file.filename)
 
         uploaded_file.save(upload_path)
         report_filename = generate_report(
-            upload_path, app.config['UPLOAD_FOLDER'])
+            upload_path, app.config['UPLOAD_PATH'])
         os.remove(upload_path)
 
-        report_path = app.config['UPLOAD_FOLDER'] + report_filename
+        report_path = app.config['UPLOAD_PATH'] + report_filename
         file_stream = convert_file_to_stream(report_path)
 
         return send_file(
